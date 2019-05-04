@@ -1,10 +1,10 @@
 package de.hawh.ld.fixedsizequeue;
-
+import de.hawh.kahlbrandt.ss2019.a05.interfaces.Queue;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class FixedSizeQueue<E> implements Serializable, Queue<E>  {
+public class FixedSizeQueue<E> implements Serializable, Queue<E> {
 
     private E[] elements;
     private final int size;
@@ -22,7 +22,7 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E>  {
     }
 
 
-    public int getSize() {
+    int getSize() {
         return size;
     }
 
@@ -87,18 +87,17 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E>  {
 
 
 
-    public static void writeObject(FixedSizeQueue q) throws IOException {
+    private void writeObj(FixedSizeQueue q) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Queues.txt"));
 
         oos.writeObject(q);
 
     }
 
-    public static void readObject() throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("Queues.txt"));
+    private Object readObj() throws IOException, ClassNotFoundException {
+        ObjectInputStream ois = new ObjectInputStream(new  FileInputStream("Queues.txt"));
 
-        FixedSizeQueue q = (FixedSizeQueue) ois.readObject();
-        System.out.println(q);
+        return ois.readObject();
     }
 
 
