@@ -7,23 +7,20 @@ import java.util.Objects;
 public class FixedSizeQueue<E> implements Serializable, Queue<E> {
 
     private E[] elements;
-    private final int size;
     private int front = 0;
     private int rear = 0;
 
     public FixedSizeQueue()  {
-        this.size = DEFAULT_CAPACITY;
         elements = (E[]) new Object[DEFAULT_CAPACITY];
     }
 
     public FixedSizeQueue(int size){
-        this.size = size;
         elements = (E[]) new Object[size];
     }
 
 
     int getSize() {
-        return size;
+        return elements.length;
     }
 
     @Override
@@ -31,7 +28,7 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         if (isFull()) {
             throw new QueueFullException("The queue is already full!");
         } else {
-            if(rear < size){
+            if(rear < elements.length){
                 elements[rear] = element;
                 rear++; }
             else {
@@ -50,7 +47,7 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         if (isEmpty()) {
             throw new QueueEmptyException("The queue is already empty!");
         } else {
-            if (front < size) {
+            if (front < elements.length) {
                 elements[front] = null;
                 front++;
             } else  {
@@ -85,21 +82,42 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         return true;
     }
 
+    public void writeObject(ObjectOutputStream oos) throws IOException {
+        this.writeObj(oos);
+    }
 
+    public void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        this.readObj(ois);
+    }
 
-    private void writeObj(FixedSizeQueue q) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Queues.txt"));
+  /*  private void writeObj() throws IOException {
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Queues.bin"));
 
-        oos.writeObject(q);
+        oos.writeObject(this);
 
     }
 
     private Object readObj() throws IOException, ClassNotFoundException {
-        ObjectInputStream ois = new ObjectInputStream(new  FileInputStream("Queues.txt"));
+            ObjectInputStream ois = new ObjectInputStream(new  FileInputStream("Queues.bin"));
 
-        return ois.readObject();
+            return ois.readObject();
+    }*/
+
+
+    private void readObj(ObjectInputStream ois) throws ClassNotFoundException, IOException
+    {
+        FixedSizeQueue<E> queue = new FixedSizeQueue<>();
+        E[] elements = (E[]) (ois.readObject());
+        front = ois.readInt();
+        rear = ois.readInt();
     }
 
+    private void writeObj(ObjectOutputStream oos) throws IOException
+    {
+        oos.writeObject(elements);
+        oos.writeInt(front);
+        oos.writeInt(rear);
+    }
 
 
 
@@ -107,7 +125,7 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
     @Override
     public String toString() {
         return "elements=" + Arrays.toString(elements) +
-               ", size = " + size +
+               ", size = " + elements.length +
                ", front = " + front +
                ", rear = " + rear;
     }
@@ -117,15 +135,14 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FixedSizeQueue<?> that = (FixedSizeQueue<?>) o;
-        return size == that.size &&
-                front == that.front &&
+        return front == that.front &&
                 rear == that.rear &&
                 Arrays.equals(elements, that.elements);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(size, front, rear);
+        int result = Objects.hash(elements.length, front, rear);
         result = 31 * result + Arrays.hashCode(elements);
         return result;
     }
@@ -135,15 +152,3 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
 
 
 }
-
-
-
-
-
-/*
- for (int i = 0; i < elements.length; i++) {
-        if (elements[i] == null) {
-        elements[i] = element;
-        break;
-        }
-        }*/
