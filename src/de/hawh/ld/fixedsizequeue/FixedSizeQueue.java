@@ -28,17 +28,9 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         if (isFull()) {
             throw new QueueFullException("The queue is already full!");
         } else {
-            if(rear < elements.length){
-                elements[rear] = element;
-                rear++; }
-            else {
-                rear = 0;
-                elements[rear] = element;
-                rear++;
+            elements[rear] = element;
+            rear = (rear < elements.length - 1) ? ++rear : 0;
             }
-        }
-
-
     }
 
 
@@ -47,47 +39,35 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         if (isEmpty()) {
             throw new QueueEmptyException("The queue is already empty!");
         } else {
-            if (front < elements.length) {
-                elements[front] = null;
-                front++;
-            } else  {
-                front = 0;
-                elements[front] = null;
-                front++;
+            elements[front] = null;
+            front = (front < elements.length - 1) ? ++front :  0;
             }
         }
-    }
 
 
     @Override
     public E peek() {
         if (isEmpty()) {
-            throw new QueueEmptyException("The queue is already empty!");}
+            throw new QueueEmptyException("The queue is empty!");}
         return elements[front];
     }
 
     @Override
     public boolean isFull(){
-        for(E e: elements)
-            if (e == null){
-                return false;}
-        return true;
+        return (front == rear && elements[front] != null);
     }
 
     @Override
     public boolean isEmpty(){
-        for(E e: elements)
-            if (e != null){
-                return false;}
-        return true;
+        return (front == rear && elements[rear] == null);
     }
 
-    public void writeObject(ObjectOutputStream oos) throws IOException {
-        this.writeObj(oos);
+    public void writeObj(ObjectOutputStream oos) throws IOException {
+        this.writeObject(oos);
     }
 
-    public void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-        this.readObj(ois);
+    public void readObj(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        this.readObject(ois);
     }
 
   /*  private void writeObj() throws IOException {
@@ -104,7 +84,7 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
     }*/
 
 
-    private void readObj(ObjectInputStream ois) throws ClassNotFoundException, IOException
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException
     {
         FixedSizeQueue<E> queue = new FixedSizeQueue<>();
         E[] elements = (E[]) (ois.readObject());
@@ -112,11 +92,12 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         rear = ois.readInt();
     }
 
-    private void writeObj(ObjectOutputStream oos) throws IOException
+    private void writeObject(ObjectOutputStream oos) throws IOException
     {
         oos.writeObject(elements);
         oos.writeInt(front);
         oos.writeInt(rear);
+        oos.close();
     }
 
 
@@ -146,9 +127,4 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         result = 31 * result + Arrays.hashCode(elements);
         return result;
     }
-
-
-
-
-
 }
