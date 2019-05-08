@@ -10,48 +10,35 @@ public class Demo {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
-        Date date = new Date();
-        long time = date.getTime();
-        Timestamp ts1 = new Timestamp(time);
-        Timestamp ts2 = new Timestamp(time);
-        Timestamp ts3 = new Timestamp(time);
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Queues.txt"));
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("Queues.txt"));
 
 
-        Method[]  m = FixedSizeQueue.class.getDeclaredMethods();
+        FixedSizeQueue<Integer> lol1 = new FixedSizeQueue<>(4);
+        FixedSizeQueue<Integer> lol2 = new FixedSizeQueue<>(4);
 
-        for (Method method : m) {
-            System.out.println(method.getName());
+        for (int i = 0; i < lol1.getSize() - 1 ; i++) {
+            lol1.enqueue(42);
         }
 
-        System.out.println(ts1);
-        FixedSizeQueue<String> queue1 = new FixedSizeQueue<>(5);
-
-        for (int i = 0; i < queue1.getSize(); i++) {
-            queue1.enqueue("Hello");
-            System.out.println(queue1);
+        for (int i = 0; i < lol2.getSize() - 1 ; i++) {
+            lol2.enqueue(1);
         }
 
-        for (int i = 0; i < queue1.getSize(); i++) {
-            queue1.dequeue();
-            System.out.println(queue1);
-        }
+        lol1.writeObj(oos);
+        lol2.writeObj(oos);
 
-        System.out.println(queue1.isFull());
+        FixedSizeQueue<Integer> lol3 = new FixedSizeQueue<>(4);
+        FixedSizeQueue<Integer> lol4 = new FixedSizeQueue<>(4);
+        lol3.readObj(ois);
+        lol4.readObj(ois);
+        System.out.println(lol1.toString());
+        System.out.println(lol3.toString());
+        System.out.println(lol1.equals(lol3));
 
-
-
-        ObjectOutputStream oos =new ObjectOutputStream(new FileOutputStream("Queues.txt"));
-        ObjectInputStream ois =new ObjectInputStream(new FileInputStream("Queues.txt"));
-
-        queue1.writeObj(oos);
-
-
-        /*FixedSizeQueue<String> queue2 = (FixedSizeQueue<String>) queue1.readObj(ois);
-
-        System.out.println(queue1);
-        System.out.println(queue2);
-        System.out.println(queue1.equals(queue2));*/
-
+        System.out.println(lol2.toString());
+        System.out.println(lol4.toString());
+        System.out.println(lol2.equals(lol4));
 
     }
 }

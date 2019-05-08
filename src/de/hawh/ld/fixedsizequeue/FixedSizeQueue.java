@@ -6,20 +6,41 @@ import java.util.Objects;
 
 public class FixedSizeQueue<E> implements Serializable, Queue<E> {
 
-    private E[] elements;
+    /**
+     * queue size
+     * @serial
+     */
+    private int size;
+    /**
+     * front of queue
+     * @serial
+     */
     private int front = 0;
+    /**
+     * rear of queue
+     * @serial
+     */
     private int rear = 0;
+    /**
+     * queue data
+     */
+    private transient E[] elements;
 
     public FixedSizeQueue()  {
+        size = DEFAULT_CAPACITY;
         elements = (E[]) new Object[DEFAULT_CAPACITY];
     }
 
-    public FixedSizeQueue(int size){
-        elements = (E[]) new Object[size];
+    public FixedSizeQueue(int size) {
+        if (size < 1) {
+            throw new IllegalArgumentException("The size needs to be greater than 0.");
+        } else {
+            this.size = size;
+            elements = (E[]) new Object[size];
+        }
     }
 
-
-    int getSize() {
+    public int getSize(){
         return elements.length;
     }
 
@@ -33,7 +54,6 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
             }
     }
 
-
     @Override
     public void dequeue() {
         if (isEmpty()) {
@@ -43,7 +63,6 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
             front = (front < elements.length - 1) ? ++front :  0;
             }
         }
-
 
     @Override
     public E peek() {
@@ -70,45 +89,40 @@ public class FixedSizeQueue<E> implements Serializable, Queue<E> {
         this.readObject(ois);
     }
 
-  /*  private void writeObj() throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("Queues.bin"));
-
-        oos.writeObject(this);
-
-    }
-
-    private Object readObj() throws IOException, ClassNotFoundException {
-            ObjectInputStream ois = new ObjectInputStream(new  FileInputStream("Queues.bin"));
-
-            return ois.readObject();
-    }*/
-
-
-    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException
-    {
-        FixedSizeQueue<E> queue = new FixedSizeQueue<>();
-        E[] elements = (E[]) (ois.readObject());
+    /**
+     * @param oos stream to write the data to.
+     * @throws IOException if IO conflicts occur
+     * @throws ClassNotFoundException if class not found
+     */
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         front = ois.readInt();
         rear = ois.readInt();
+        size = ois.readInt();
+        elements = (E[]) (new Object[size]);
+        for (int i = 0; i < size ; i++) {
+            elements[i] = (E) ois.readObject();
+        }
     }
-
-    private void writeObject(ObjectOutputStream oos) throws IOException
-    {
-        oos.writeObject(elements);
+    /**
+     * @param oos stream to write the data to.
+     * @throws IOException if IO conflicts occur
+     * @serialData front, rear and size of queue to ensure the elements are enqueued in the right order
+     */
+    private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.writeInt(front);
         oos.writeInt(rear);
-        oos.close();
+        oos.writeInt(size);
+        for(Object element : elements){
+            oos.writeObject(element);
+        }
     }
-
-
-
 
     @Override
     public String toString() {
-        return "elements=" + Arrays.toString(elements) +
-               ", size = " + elements.length +
-               ", front = " + front +
-               ", rear = " + rear;
+        return "elements=" + Arrays.toString(elements) + "\n" +
+               "size = " + elements.length + "\n" +
+               "front = " + front + "\n" +
+               "rear = " + rear;
     }
 
     @Override
